@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="adminMapper">
+
+<!-- 게시판 1계층 카테고리 -->
+<resultMap type="kh.study.soccer.board.vo.BoardCategoryVO" id="boardCate">
+	<id column="BOARD_CATE_CODE" 			property="boardCateCode"/>
+	<result column="BOARD_CATE_NAME" 		property="boardCateName"/>
+</resultMap>
+
+
+<!--게시판 1계층 카테고리 조회 -->
+<select id="selectBoardCate" resultMap="boardCate">
+	SELECT BOARD_CATE_CODE
+		, BOARD_CATE_NAME
+	FROM BOARD_CATEGORY
+	ORDER BY BOARD_CATE_CODE
+</select>
+
+<!--게시판 1계층 카테고리 생성  -->
+<insert id="insertBoardCate">
+	<selectKey resultType="String" keyProperty="boardCateCode" order="BEFORE">
+		SELECT 'CATE_'||LPAD(NVL(MAX(TO_NUMBER(SUBSTR(BOARD_CATE_CODE, 6))), 0) + 1, 3, 0) 
+		FROM BOARD_CATEGORY  
+	</selectKey>
+	
+		INSERT INTO BOARD_CATEGORY (
+			BOARD_CATE_CODE     
+			, BOARD_CATE_NAME
+		) VALUES (
+			#{boardCateCode}
+			, #{boardCateName}
+		)
+</insert>
+
+<!--게시판 2계층 카테고리 조회 -->
+<select id="selectBoardSubCate" resultMap="boardCate">
+	SELECT BOARD_CATE_CODE
+		, BOARD_CATE_NAME
+	FROM BOARD_SUB_CATEGORY
+	WHERE BOARD_CATE_CODE LIKE #{boardCateCode}||'_%' 
+	ORDER BY BOARD_CATE_CODE
+</select>
+
+<!--게시판 2계층 카테고리 생성  -->
+<insert id="insertBoardSubCate">
+	<selectKey resultType="String" keyProperty="boardSubCateCode" order="BEFORE">
+		SELECT  #{selectedBoardCateCode}||'_'||
+							LPAD(
+								NVL(   MAX( TO_NUMBER(SUBSTR(BOARD_CATE_CODE, 10)) ), 0   )
+							 + 1, 3, 0 ) 
+		FROM BOARD_SUB_CATEGORY
+		WHERE BOARD_CATE_CODE LIKE #{selectedBoardCateCode}||'_%' 
+						<!--VO를 통하지않고 리퀘스트 파람맵으로 mybatis에서 
+						들고왔을때 알아서 들고와줌 --> 
+	</selectKey>
+	
+		INSERT INTO BOARD_SUB_CATEGORY (
+			BOARD_CATE_CODE     
+			, BOARD_CATE_NAME
+		) VALUES (
+			#{boardSubCateCode} <!--selectKey로 생성된 값  -->
+			, #{boardSubCateName}<!--html에서 controller로 받고 리퀘파람으로 paramMap으로 받은 input2계층 카테이름 -->
+		)
+</insert>
+
+<!--게시판 3계층 카테고리 생성  -->
+<insert id="insertBoardDeepSubCate">
+	<selectKey resultType="String" keyProperty="boardDeepSubCateCode" order="BEFORE">
+	
+	</selectKey>
+
+
+</insert>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

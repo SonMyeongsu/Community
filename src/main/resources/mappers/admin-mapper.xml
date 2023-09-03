@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 해당 파일에 모든 쿼리문을 작성 -->
+<mapper namespace="adminMapper">
+
+<!-- 게시판 카테고리 -->
+<resultMap type="kh.study.community.admin.vo.CategoryVO" id="category">
+	<id column="CODE_TYPE_ID" 				property="codeTypeId"/>
+	<result column="CODE" 					property="code"/>
+	<result column="CATEGORY_NAME" 			property="categoryName"/>
+	<result column="SLAVE_CODE_TYPE_ID" 	property="slaveCodeTypeId"/>
+</resultMap>
+
+
+
+<!--카테고리 조회  -->
+<select id="selectCategoryList" resultMap="category">
+SELECT CO.CODE_TYPE_ID
+	    , CO.CODE
+	    , CO.CODE_NAME AS CATEGORY_NAME
+	    , TY.CODE_TYPE_ID AS SLAVE_CODE_TYPE_ID 
+FROM COMMON_CODE CO, COMMON_TYPE TY 
+WHERE CO.CODE_TYPE_ID = TY.UP_TYPE_ID
+AND CO.CODE = TY.UP_CODE
+ORDER BY CODE_TYPE_ID, CODE
+</select>
+
+
+
+<!-- 공통코드유형 튜플 생성 -->
+<insert id="insertCommonType">
+INSERT INTO COMMON_TYPE VALUES(
+    (SELECT MAX(CODE_TYPE_ID) +1 FROM COMMON_TYPE)
+    , #{categoryName} ||'유형'
+    , #{codeTypeId}  <!-- 뷰단에서 name의 value값을 받아서 mybatis에서 데이터 넣어줌 -->
+    , ( SELECT NVL(MAX(CODE), 0)+1
+        FROM COMMON_CODE
+        WHERE CODE_TYPE_ID = #{codeTypeId}
+        )    
+)
+</insert>
+<!-- 자동 공통코드 튜플 생성 -->
+<insert id="insertCommonCode">
+INSERT INTO COMMON_CODE VALUES(
+    #{codeTypeId}
+    , (SELECT MAX(UP_CODE) FROM COMMON_TYPE WHERE UP_TYPE_ID = #{codeTypeId} )
+    , #{categoryName}
+)
+</insert>
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

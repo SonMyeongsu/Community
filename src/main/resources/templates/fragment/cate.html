@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	
+
+<!-- 고정된 화면  -->
+<div th:fragment="cateFragment">
+
+<!--인라인 스크립트로 객체 전달  -->
+<script th:inline="javascript">
+
+	
+		
+	//전체 카테고리(1계층으로 축약된것)
+	//컨트롤러에서 받아온 전체 카테고리 리스트
+	const allCateList = /*[[${cateList}]]*/[]; 
+	console.log(allCateList);
+	
+	document.querySelector(".tree ").addEventListener('click', function(){
+		
+		alert("!!!!!!!!!!!!!!!!");
+	});
+	
+	
+
+
+</script>
+
+<!--카테고리 바 조회 -->
+<script type="text/javascript" th:src="@{/js/cate/categoryBar.js}"></script>
+
+
+
+<head>
+	
+	<link rel="stylesheet" th:href="@{/imgs/tree_fontello/css/fontello.css}"><!-- 아이콘 경로 -->
+	
+	<style>
+		/* 속성 선택자 */
+		
+		
+		 .tree, .tree ul{
+			list-style: none;
+			padding-left: 20px;
+		}
+		
+		 .tree *:before{
+			width: 24px;
+			display: inline-block;
+			height: 17px;
+		}
+		
+		 .tree label:before{
+			content:'\f256'; /* 주먹 아이콘  */
+			font-family: fontello;
+		}
+		 .tree input[type="checkbox"] {
+			display: none;
+		}
+		
+		/* checkbox 속성 선택자에서 체크 되있는것 적용하겠다의미 */
+		/*  ~ 의 의미: 이후에 등장하는 ul태그를 선택한다는 의미      */
+		 .tree input[type="checkbox"]:checked~ul {
+			display: none;
+		}
+
+
+
+		 .tree input[type="checkbox"]:checked+label:before {
+			content: '\f255';
+			font-family: fontello;
+		}
+	</style>
+
+</head>	
+	
+	<ul class="tree">
+		<li>
+			<!--게시판 영역  -->
+			<input type="checkbox" id="root" onclick="selectCategoryBar()"><!-- id와 for를 똑같이 주면 누구의 레이블인지 확인  -->
+			<label for="root">게시판</label>
+			<ul>
+				<li class="li1">node1</li>
+				<li>node2</li>
+				<li>
+					<input type="checkbox" id="node3"><!-- id와 for를 똑같이 주면 누구의 레이블인지 확인  -->
+					<label for="node3">node3</label>
+					<ul>
+						<li>node31</li>
+						<li>node32</li>
+						<li>node33</li>
+					</ul>
+				</li>
+			</ul>
+			
+			<!--다른 메뉴 영역, 추후 예정  -->
+			
+		</li>
+	</ul>		
+</div>
+
+</html>

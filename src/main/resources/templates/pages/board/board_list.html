@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout ="http://www.ultrap.net.nz/thymeleaf/layout"	
+	layout:decorate="~{layout/base_layout}"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- xmlns:layout layout 사용
+decorate -> layout 페이즈는 base_layout이랑 같이 나옴
+controller에서 board_List 실행하면 위의 태그들로 인해서 연결된 파일들 같이 열린다. -->
+
+<!-- 계속 바뀌는 화면 -->
+
+<div layout:fragment ="content">
+	<!-- 게시판 검색 -->
+	<div class="row mb-1">
+		<div class="col">
+			<form th:action="@{/board/boardList}" method="get">
+				<table class="table align-middle table-bordered text-center test"
+					style="color: #333; font-weight: lighter;">
+					<colgroup>
+						<col width="20%">
+						<col width="15%">
+						<col width="5%">
+						<col width="5%">
+						<col width="15%">
+						<col width="5%">
+						<col width="5%">
+						<col width="10%">
+						<col width="10%">
+					</colgroup>
+					<tr>
+						<td class="searchTitle">
+							<select class="form-select" name="boardCateCode">
+								<option value="" th:selected="${paramMap['boardCateCode'] == null or paramMap['boardCateCode'] eq ''}">카테고리</option>
+								<option th:each="cateList: ${boardCate}"
+									th:text="${cateList.boardCateName}"
+									th:value="${cateList.boardCateCode}"
+									th:selected="${paramMap['boardCateCode'] eq cateList.boardCateCode}">
+								</option>
+							</select> 
+						</td>
+						<td>
+							<div class="row">
+								<div class="col-6">
+									<input class="form-control" type="date" name="fromDate" id="" th:value="${paramMap['fromDate']}">
+								</div>
+								<div class="col-6">
+									<input class="form-control" type="date" name="toDate" id="" th:value="${paramMap['toDate']}">
+								</div>
+							</div>
+						</td>
+						<td colspan="2">
+							<select class="form-select" name="searchType">
+									<!--th:selected 사용하여 검색후 searchType 살려놓음  -->
+								<option th:value="작성자" 
+										th:selected="${paramMap['searchType'] eq '작성자'}">작성자</option>
+								<option th:value="글제목" 
+										th:selected="${paramMap['searchType'] eq '글제목'}">글제목</option>
+								<option th:value="글내용" 
+										th:selected="${paramMap['searchType'] eq '글내용'}">글내용</option>
+								<option th:value="글제목글내용" 
+										th:selected="${paramMap['searchType'] eq '글제목글내용'}">글제목+글내용</option>
+							</select>
+						</td>
+						<td colspan="2">									
+							<input class="form-control" type="text" name="searchValue"  th:value="${paramMap['searchValue']}">
+						</td> 
+						<td colspan="3">
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="orderBy" th:value="BOARD_NUM" checked="checked"> 
+								<label class="form-check-label" for="">최신순</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="orderBy" th:value="BOARD_READ_CNT"> 
+								<label class="form-check-label" for="">조회순</label>
+							</div>
+							<div class="form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="orderBy" th:value="LIKE_COUNT"> 
+								<label class="form-check-label" for="">추천순</label>
+							</div>
+						</td>
+						<td>
+							<button type="submit" id="searchButton" class="btn btn-outline-info" style="color: #333; height: 90px; width: 70px; border-color: #e3e6f0;">
+								검색
+							</button>
+						</td>
+					</tr>
+				</table>
+				<input type="hidden" id="nowPage" value="1" name="nowPage">
+			</form>
+		</div>
+	</div>
+	<!-- 게시글 -->
+	<div class="row">
+		<div class="col">
+			<table class="table table-hover" style="text-align: center;">
+				<colgroup>
+					<col width="10%">
+					<col width="10%">
+					<col width="20%">
+					<col width="20%">
+					<col width="20%">
+					<col width="10%">
+					<col width="10%">
+				</colgroup>
+				<thead class="table-group-divider" style="font-size: 1.1rem; color: #4e4e4e;">
+					<tr>
+						<td>글번호</td>
+						<td>글제목</td>
+						<td>작성자</td>
+						<td>작성일</td>
+						<td>조회수</td>
+						<td>좋아요</td>
+						<td>싫어요</td>
+					</tr>
+				</thead>
+				<tbody class="table-group-divider">
+					<tr th:each="list : ${boardList}" style="color: black; font-weight: lighter;">
+						<td th:text="${list.boardNum}"></td>
+						<td>
+							<th:block th:if="${list.isSecret eq 'N'}">
+								<a th:href="@{/board/boardDetail(boardNum=${list.boardNum})}">
+									<span th:text="${list.boardTitle}"></span>
+								</a>
+							</th:block> 
+							<th:block th:unless="${list.isSecret eq 'N'}">
+								<!-- 작성자본인과 관리자만 수정삭제가능 -->
+								<th:block th:if="${list.memberId eq #authentication.name or #strings.contains(#authentication.authorities,'ROLE_Y')}">
+									<img src="/imgs/board/자물쇠.png" height="20" width="20">
+									<a th:href="@{/board/boardDetail(boardNum=${list.boardNum})}">
+										<span th:text="${list.boardTitle}"></span>
+									</a>
+								</th:block>
+								<th:block th:unless="${list.memberId eq #authentication.name or #strings.contains(#authentication.authorities,'ROLE_Y')}">
+									<img src="/imgs/board/자물쇠.png" height="20" width="20">
+									<span>비밀글입니다</span>
+								</th:block>
+							</th:block> 
+							&nbsp; 
+							<!-- <th:block th:if="${list.replyCount ne 0}">
+								<span style="color: #f56642;">[</span>
+								<span style="color: #f56642;" th:text="${list.replyCount}"></span>
+								<span style="color: #f56642;">]</span>
+							</th:block> 
+							<th:block th:unless="${list.replyCount ne 0}">
+							</th:block>  -->
+							<th:block th:if="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd') eq list.boardRegDate}"><!--#calendars.format(#calendars.createNow(),'날짜 형식') 현재시각 출력-->
+								<img src="/imgs/board/icons8-동그라미-n-48.png" height="20" width="20" /> 
+							</th:block> 
+							<!-- <th:block th:unless="${#calendars.format(#calendars.createNow(), 'yyyy-MM-dd') eq list.boardRegDate}">
+							</th:block> -->
+						</td>
+						<td th:text="${list.memberId}"></td>
+						<td th:text="${#strings.substring(list.boardRegDate,0,10)}"></td>
+						<td th:text="${list.boardReadCnt}"></td>
+						<td th:text="${list.likeCount}"></td>
+						<td th:text="${list.hateCount}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	 <!-- 로그인 한 유저만 보이도록  -->
+	<div class="row">
+		<span sec:authorize="isAuthenticated()">
+			<button type="button" class="btn btn-secondary" th:onclick="|location.href='@{/board/regBoardForm}'|">글쓰기</button>	
+		</span>
+	</div>	
+	<!-- 페이징 처리 -->
+	<div class="row">
+		<div align="center">
+			<th:block th:if="${boardVO.prev}">
+				<a th:text="prev" th:href="@{/board/boardList(nowPage=${boardVO.beginPage - 1})}"></a>
+			</th:block>
+			<th:block th:each="pageNum : ${#numbers.sequence(boardVO.beginPage, boardVO.endPage)}">
+				<a th:text="${pageNum}" th:href="@{/board/boardList(nowPage=${pageNum})}"></a>
+			</th:block>
+			<th:block th:if="${boardVO.next}">
+				<a th:text="next" th:href="@{/board/boardList(nowPage=${boardVO.endPage + 1})}"></a>
+			</th:block>
+		</div>
+	</div>
+</div>
+</html>

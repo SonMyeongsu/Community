@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout ="http://www.ultrap.net.nz/thymeleaf/layout"	
+	layout:decorate="~{layout/base_layout}"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!-- xmlns:layout layout 사용
+decorate -> layout 페이즈는 base_layout이랑 같이 나옴
+controller에서 board_List 실행하면 위의 태그들로 인해서 연결된 파일들 같이 열린다. -->
+<head>
+	<!--rel 속성은 현재 문서와 외부 리소스 사이의 연관 관계를 명시  -->
+	<!--스타일 시트(stylesheet)로 사용할 외부 리소스를 불러옴.  -->
+	<!-- <link rel="stylesheet" th:href="@{/imgs/tree_fontello/css/fontello.css}"> --><!-- 아이콘 경로 -->
+	
+	<style>
+		/* 속성 선택자 */
+		
+		
+		.tree, .tree ul{
+			list-style: none;
+			padding-left: 20px;
+		}
+		
+		.tree *:before{
+			width: 24px;
+			display: inline-block;
+			height: 17px;
+		}
+		
+		.tree label:before{
+			content:'\f256'; /* 주먹 아이콘  */
+			font-family: fontello;
+		}
+		.tree input[type="checkbox"] {
+			display: none;
+		}
+		
+		/* checkbox 속성 선택자에서 체크 되있는것 적용하겠다의미 */
+		/* 이후에 등장하는 ul태그를 선택한다는 의미      ~ 의 의미 */
+		.tree input[type="checkbox"]:checked~ul {
+			display: none;
+		}
+
+
+
+		.tree input[type="checkbox"]:checked+label:before {
+			content: '\f255';
+			font-family: fontello;
+		}
+	</style>
+
+</head>
+
+
+<div layout:fragment ="content">
+<!-- 트리뷰 -->
+
+	<ul class="tree">
+		<li>
+			<input type="checkbox" id="root"><!-- id와 for를 똑같이 주면 누구의 레이블인지 확인  -->
+			<label for="root">ROOT</label>
+			<ul>
+				<li>node1</li>
+				<li>node2</li>
+				<li>
+					<input type="checkbox" id="node3"><!-- id와 for를 똑같이 주면 누구의 레이블인지 확인  -->
+					<label for="node3">node3</label>
+					<ul>
+						<li>node31</li>
+						<li>node32</li>
+						<li>node33</li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+	</ul>
+
+
+</div>
+</html>
